@@ -1,0 +1,26 @@
+{
+  "author": "Nathan Davis (https://github.com/nathanwdavis)",
+  "name": "redis-info-viz",
+  "description": "Redis dashboard and monitor",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nathanwdavis/redis-info-viz.git"
+  },
+  "main": "server.js",
+  "scripts": {
+    "test": "coffee -cb test/ && ~/node_modules/.bin/vows test/*.js --spec"
+  },
+  "engines": {
+    "node": ">0.6.2"
+  },
+  "dependencies": {
+    "redis": "*",
+    "connect": "*"
+  },
+  "devDependencies": {
+    "vows": "*",
+    "coffee-script": "*"
+  },
+  "optionalDependencies": {}
+}
