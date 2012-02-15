@@ -1,8 +1,7 @@
-POLL_INTERVAL = 2000
-WINDOW_SIZE = 600
+POLL_INTERVAL = 3000
+WINDOW_SIZE = 1200
 
-redis = require('redis')
-redisClient = redis.createClient()
+history = new Array(WINDOW_SIZE)
 
 connect = require('connect')
 server = connect.createServer(
@@ -13,22 +12,35 @@ server = connect.createServer(
 		
 		app.get('/api/info', (req,resp,next) ->
 			
-			redisClient.info( (err,reply) ->
-				if err
-					resp.writeHead(400,{'content-type':'application/json'})
-					resp.end("Error retrieving INFO")
-				else
-					resp.writeHead(200,{'content-type':'application/json'})
-					info = new Info(reply)
-					resp.end(JSON.stringify(info))
-			)
+			retVal = JSON.stringify(history)
+			resp.writeHead(200,{'content-type':'application/json'})
+			resp.end(retVal)
 		)
 	)
 )
 
+do ->
+	redis = require('redis')
+	redisClient = redis.createClient()
+
+	poller = setInterval( ( ->
+		redisClient.info( (err,reply) ->
+			if err
+				console.log('INFO command failed.')
+			else
+				info = new Info(reply)
+				history.push(info)
+				if history.length >= WINDOW_SIZE
+					history.shift()
+		)
+		return
+		), POLL_INTERVAL
+	)
+
 class Info
 	constructor: (rawInfo) ->
-		@rawInfo = rawInfo
+		#@rawInfo = rawInfo
+		@timestamp = Date.now
 		lines = rawInfo.toString().split('\r\n')
 		data = undefined
 		for line in lines
